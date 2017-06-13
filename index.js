@@ -17,6 +17,13 @@ var each = function (obj, fn) {
 var isArray = Array.isArray || function (arr) {
         return toString(arr) === '[object Array]'
     };
+var isString = function (str) {
+    return typeof str === 'string'
+};
+var isObject = function (obj) {
+    return obj && typeof obj === 'object'
+};
+
 var
     util_param = function (params, encodeEx) {
         if (params == null || typeof params !== 'object') return params || '';
@@ -47,7 +54,7 @@ var
         return result.join('&');
     },
     util_resolveUrl = function (url, param, encodeEx) {
-        param = util.param(param, encodeEx);
+        param = util_param(param, encodeEx);
         return url.replace(reg_resolveUrl, '?$2&' + param + '$3').replace('?&', '?')
     },
     util_defer = function () {
@@ -99,7 +106,8 @@ var
  *     cbName  回调的函数名 , 默认`__jsonp__${cnt}`
  *     timeout 超时时间 ,  默认 30000
  *     charset 默认utf-8
- *     encodeExclude: false
+ *     encodeExclude: false,
+ *     responseType
  *      }
  * */
 var _jsonpCnt = 0;
@@ -107,13 +115,19 @@ function jsonp(opt) {
     var {
         url = '',
         params = {},
-        cbParam = 'callback',
-        cbName = `__jsonp__${_jsonpCnt++}`,
+        cbParam,
+        cbName,
         timeout,
-        charset = 'utf-8'
+        charset = 'utf-8',
+        responseType  //jsonp忽略该值，不做处理。
     } = opt || {};
 
-    timeout = timeout || 30000; //排除空和0
+    var isAbort = false;
+
+    //排除0和空
+    !timeout && (timeout = 30000);
+    !cbParam && (cbParam = 'callback');
+    !cbName && (cbName = `__jsonp__${_jsonpCnt++}`);
 
     params[cbParam] = cbName;
     url = util_resolveUrl(url, params, opt.encodeExclude);
@@ -138,6 +152,8 @@ function jsonp(opt) {
         catch (e) {
         }
 
+        if (isAbort) return;
+
 
         (status === 200 ? defer.resolve : defer.reject)({
             status, statusText, data
@@ -160,7 +176,11 @@ function jsonp(opt) {
     script.src = url;
     parent.appendChild(script);
 
-    return defer.promise;
+    defer.abort = function () {
+        isAbort = true;
+    };
+
+    return defer;
 }
 
 
@@ -180,7 +200,7 @@ function jsonp(opt) {
 function ajax(config) {
     var defer = util_defer();
     var xhr = new XMLHttpRequest();
-    var {url, method, params, data: requestData} = config;
+    var {url, method, params, data: requestData, responseType} = config;
 
     xhr.open(method, util_resolveUrl(url, params, config.encodeExclude), true);
 
@@ -189,6 +209,16 @@ function ajax(config) {
         if (!xhr || xhr.readyState !== 4) return;
 
         var responseData = !xhr.responseType || xhr.responseType === 'text' ? xhr.responseText : xhr.response;
+
+        //fix: 要求json，但是不是对象。
+        if (responseType === 'json' && !isObject(responseData)) {
+            try {
+                responseData = JSON.parse(xhr.responseText);
+            }
+            catch (e) {
+                responseData = xhr.responseText;
+            }
+        }
 
         var status = xhr.status;
 
@@ -225,11 +255,15 @@ function ajax(config) {
     }
 
     xhr.withCredentials = config.withCredentials;
-    xhr.responseType = config.responseType || '';
+    xhr.responseType = responseType || '';
 
     xhr.send(requestData || null);
 
-    return defer.promise;
+    defer.abort = function () {
+        xhr && xhr.abort();
+    };
+
+    return defer;
 }
 
 
@@ -266,7 +300,8 @@ var defaults = {
     },
     transformRequest: (requestData, config) => requestData,
     transformResponse: (res, config) => res,
-    encodeExclude: false
+    encodeExclude: false,
+    responseType: 'json'
 };
 
 
@@ -323,12 +358,15 @@ module.exports = function (config) {
     config.data = requestData;
     config.headers = headers;
 
-    return ( isJsonp ? jsonp(config) : ajax(config) ).then(function (res) {
+    var defer = ( isJsonp ? jsonp(config) : ajax(config) );
+
+    var promise = defer.promise.then(function (res) {
         res.data = transformResponse(res.data, config);
         return res;
     }, function (res) {
         res.data = transformResponse(res.data, config);
         return Promise.reject(res);
     });
-
+    promise.abort = defer.abort;
+    return promise;
 };
