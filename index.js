@@ -107,7 +107,7 @@ var
  *     timeout 超时时间 ,  默认 30000
  *     charset 默认utf-8
  *     encodeExclude: false,
- *     responseType
+ *     responseType:  目前忽略该值
  *      }
  * */
 var _jsonpCnt = 0;
@@ -283,6 +283,7 @@ function ajax(config) {
  *
  *  cbParam 回调的参数名，默认为callback
  *  cbName  回调的函数名, 默认`__jsonp__${cnt}`
+ *  charset: utf-8
  *
  * */
 /*
@@ -315,7 +316,7 @@ var specialHeader = {
 };
 
 
-module.exports = function (config) {
+var fetch = function (config) {
 
     config = assign({}, defaults, config);
 
@@ -370,3 +371,5 @@ module.exports = function (config) {
     promise.abort = defer.abort;
     return promise;
 };
+module.exports = fetch;
+// module.exports.default = fetch;

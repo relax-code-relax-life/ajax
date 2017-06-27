@@ -14,7 +14,7 @@ module.exports = {
         path: __dirname + '/dist',
         library: 'ajax',
         libraryTarget: 'umd',
-        umdNamedDefine: true
+        umdNamedDefine: false
     },
     watch: false,
     module: {
@@ -34,6 +34,6 @@ module.exports = {
             comments: false,
             beautify: false
         }),
-        new webpack.BannerPlugin('author:wwl')
+        new webpack.BannerPlugin('https://github.com/w-wl')
     ]
 };
