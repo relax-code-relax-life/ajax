@@ -208,15 +208,16 @@ function ajax(config) {
     xhr.onreadystatechange = function () {
         if (!xhr || xhr.readyState !== 4) return;
 
+        //只有当responseType为 空字符串或text时，才能访问responseText属性。否则报错。
         var responseData = !xhr.responseType || xhr.responseType === 'text' ? xhr.responseText : xhr.response;
 
         //fix: 要求json，但是不是对象。
         if (responseType === 'json' && !isObject(responseData)) {
             try {
-                responseData = JSON.parse(xhr.responseText);
+                responseData = JSON.parse(responseData);
             }
             catch (e) {
-                responseData = xhr.responseText;
+
             }
         }
 
