@@ -8,11 +8,13 @@ var call = Function.prototype.call;
 var toString = call.bind(Object.prototype.toString);
 var reg_resolveUrl = /(\?([^#]*))?(#.*)?\s*$/;
 var assign = function (tar, ...extend) {
-    extend.forEach((obj, index) => {
-        Object.keys(obj)
-            .filter(key => obj[key] != null)    //过滤null和undefined
-            .forEach(key => tar[key] = obj[key])
-    });
+    extend
+        .filter(obj => obj != undefined) //过滤null,undefined
+        .forEach((obj, index) => {
+            Object.keys(obj)
+                .filter(key => obj[key] != null)    //过滤null和undefined
+                .forEach(key => tar[key] = obj[key])
+        });
     return tar;
 };
 var each = function (obj, fn) {
