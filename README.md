@@ -46,7 +46,7 @@ typeof promise.abort === 'function';    //true
     请求的url
 
 ### method
-    <string>    require
+    <string>    
     默认为GET，支持JSONP。不区分大小写。
 
 ### data

@@ -326,8 +326,12 @@ var specialHeader = {
 
 var fetch = function (config) {
 
-    config = assign({}, defaults, config);
+    if (config.url || typeof config.url !== 'string' || config.url.trim === '') {
+        throw 'wwl-ajax : invalid url .';
+        return;
+    }
 
+    config = assign({}, defaults, config);
 
     var method = config.method.toUpperCase();
 
