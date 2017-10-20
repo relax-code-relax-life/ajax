@@ -7,16 +7,20 @@
 var call = Function.prototype.call;
 var toString = call.bind(Object.prototype.toString);
 var reg_resolveUrl = /(\?([^#]*))?(#.*)?\s*$/;
-var assign = Object.assign || function (tar, ...extend) {
-        extend.forEach((val, key) => tar[key] = val);
-        return tar;
-    };
+var assign = function (tar, ...extend) {
+    extend.forEach((obj, index) => {
+        Object.keys(obj)
+            .filter(key => obj[key] != null)    //过滤null和undefined
+            .forEach(key => tar[key] = obj[key])
+    });
+    return tar;
+};
 var each = function (obj, fn) {
     Object.keys(obj).forEach(key => fn(obj[key], key));
 };
 var isArray = Array.isArray || function (arr) {
-        return toString(arr) === '[object Array]'
-    };
+    return toString(arr) === '[object Array]'
+};
 var isString = function (str) {
     return typeof str === 'string'
 };
@@ -111,6 +115,7 @@ var
  *      }
  * */
 var _jsonpCnt = 0;
+
 function jsonp(opt) {
     var {
         url = '',
@@ -251,7 +256,7 @@ function ajax(config) {
 
     if (xhr.setRequestHeader) {
         each(config.headers, (val, key) => {
-            val != undefined && xhr.setRequestHeader(key, val)
+            val !== null && val !== undefined && xhr.setRequestHeader(key, val)
         });
     }
 

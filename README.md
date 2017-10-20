@@ -6,11 +6,11 @@
 
 ## 下载
 * npm install --save wwl-ajax
-* `<script src="https://raw.githubusercontent.com/w-wl/ajax_dist/master/index.js"></script>`
+* `<script src="https://gitee.com/w-wl/dist_ajax/raw/master/index.js"></script>`
 
 ## 使用
-* amd， 例如: define([],"./js/wwl-ajax.js");
-* commonJs, 例如: import ajax from 'wwl-ajax' 或 var ajax=require('wwl-ajax');
+* amd， eg: define([],"./js/wwl-ajax.js");
+* commonJs, eg: import ajax from 'wwl-ajax' 或 var ajax=require('wwl-ajax');
 * 当页面不支持amd和commonJs时，会暴露出window.ajax函数。
 
 ## 示例
@@ -131,3 +131,17 @@ typeof promise.abort === 'function';    //true
 ### xhr
     <XMLHttpRequest>
     内部的XMLHttpRequest对象，如果jsonp，则该值为undefined。
+    
+## 注意
+如果传入的参数值为null或undefined，则会按照缺省处理。
+
+```javascript
+
+import ajax from 'wwl-ajax';
+
+var url = 'http://127.0.0.1';
+
+ajax({url:url,method:undefined});
+//等效于 ajax({ url:url });
+
+```
