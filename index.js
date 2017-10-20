@@ -29,6 +29,10 @@ var isString = function (str) {
 var isObject = function (obj) {
     return obj && typeof obj === 'object'
 };
+var trim = function (str) {
+    if (str.trim) return str.trim();
+    else return str.replace(/^\s+|\s+$/g, '');
+}
 
 var
     util_param = function (params, encodeEx) {
@@ -326,7 +330,7 @@ var specialHeader = {
 
 var fetch = function (config) {
 
-    if (config.url || typeof config.url !== 'string' || config.url.trim === '') {
+    if (typeof config.url !== 'string' || trim(config.url) === '') {
         throw 'wwl-ajax : invalid url .';
         return;
     }
