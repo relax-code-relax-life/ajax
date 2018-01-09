@@ -6,7 +6,7 @@
 
 ## 下载
 * npm install --save wwl-ajax
-* `<script src="https://gitee.com/w-wl/dist_ajax/raw/master/index.js"></script>`
+* \<script src="https://gitee.com/w-wl/dist_ajax/raw/master/index.js"></script\>
 
 ## 使用
 * amd， eg: define([],"./js/wwl-ajax.js");
@@ -22,7 +22,7 @@ var config={    //配置参数
     url: "http://127.0.0.1",
     method:"post",
     data:{ name:"w w l" },
-    param:{ id:5 }
+    params:{ id:5 }
 };
 
 //实际请求url: http://127.0.0.1?id=5
