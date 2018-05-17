@@ -297,6 +297,7 @@ function ajax(config) {
  *  cbName  回调的函数名, 默认`__jsonp__${cnt}`
  *  charset: utf-8
  *
+ *  contentType:    目前支持的值有: urlencoded,formdata,json
  * */
 /*
  * res:
@@ -317,16 +318,24 @@ var defaults = {
     responseType: 'json'
 };
 
-
-var header_form_content_type = {
+var header_post_urlencode = {
     'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8'
 };
-var specialHeader = {
-    POST: header_form_content_type,
-    PUT: header_form_content_type,
-    PATCH: header_form_content_type
+var header_post_json = {
+    'Content-Type': 'application/json;charset=utf-8'
+};
+var header_special = {
+    //PUT:{},
+    //PATHCH:{}
+    //POST:{}
 };
 
+
+var contentTypeEnum = {
+    urlencoded: 'urlencoded',
+    formData: 'formdata',
+    json: 'json'
+};
 
 var fetch = function (config) {
 
@@ -339,13 +348,12 @@ var fetch = function (config) {
 
     var method = config.method.toUpperCase();
 
-    var requestData = config.data;
-    var params = config.params || {};
-
     var transformRequest = config.transformRequest,
         transformResponse = config.transformResponse;
 
-    requestData = transformRequest(requestData, config);
+
+    var requestData = transformRequest(config.data, config) || {};
+    var params = config.params || {};
 
     var isJsonp = method === 'JSONP';
     if (method === 'GET' || isJsonp) {
@@ -353,29 +361,45 @@ var fetch = function (config) {
         requestData = null;
     }
 
-    if (requestData == undefined ||
-        util_isFormData(requestData) ||
+    var headerSpecial = assign({}, header_special[method]);
+
+    var contentType = config.contentType;
+
+    if (util_isFormData(requestData)) {
+        contentType = contentTypeEnum.formData;
+    }
+    else if (typeof requestData !== 'object' ||
         util_isArrayBuffer(requestData) ||
         util_isArrayBufferView(requestData) ||
         util_isBlob(requestData) ||
         util_isFile(requestData)) {
         //不处理
     }
-    else if (typeof requestData === 'object') {
+    else if (contentType === contentTypeEnum.formData) {
+        var formdata = new FormData();
+        each(requestData, function (val, key) {
+            formdata.append(key, val);
+        });
+        requestData = formdata;
+    }
+    else if (contentType === contentTypeEnum.json) {
+        requestData = JSON.stringify(requestData);
+        assign(headerSpecial, header_post_json)
+    }
+    else if (!contentType || contentType === contentTypeEnum.urlencoded) {
         requestData = util_param(requestData, config.encodeExclude);
+        contentType = contentTypeEnum.urlencoded;
+        assign(headerSpecial, header_post_urlencode);
     }
 
-    var headers = assign({}, specialHeader[method], config.headers);
-    if (util_isFormData(requestData)) {
-        delete headers['Content-Type'];
-    }
+    var headers = assign(headerSpecial, config.headers);
 
     config.method = method;
     config.params = params;
     config.data = requestData;
     config.headers = headers;
 
-    var defer = ( isJsonp ? jsonp(config) : ajax(config) );
+    var defer = (isJsonp ? jsonp(config) : ajax(config));
 
     var promise = defer.promise.then(function (res) {
         res.data = transformResponse(res.data, config);
@@ -387,5 +411,6 @@ var fetch = function (config) {
     promise.abort = defer.abort;
     return promise;
 };
-module.exports = fetch;
+// module.exports = fetch;
 // module.exports.default = fetch;
+export default fetch;

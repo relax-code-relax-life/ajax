@@ -1,5 +1,6 @@
 # ajax
-浏览器端加载远程数据的ajax实现，支持jsonp。
+浏览器端加载远程数据的ajax实现，支持jsonp，支持FormData。
+
 
 ## 依赖
 代码依赖Promise对象，请确保在加载ajax前已支持Promise。
@@ -9,37 +10,118 @@
 * \<script src="https://gitee.com/w-wl/dist_ajax/raw/master/index.js"></script\>
 
 ## 使用
-* amd， eg: define([],"./js/wwl-ajax.js");
-* commonJs, eg: import ajax from 'wwl-ajax' 或 var ajax=require('wwl-ajax');
-* 当页面不支持amd和commonJs时，会暴露出window.ajax函数。
+* amd， eg: `define([],"./js/wwl-ajax.js")`;
+* commonJs, eg: `import ajax from 'wwl-ajax'` 或 `var ajax=require('wwl-ajax')`;
+* 当页面不支持amd和commonJs时，直接引用script,会暴露出window.ajax函数。
 
-## 示例
+## 示例1 GET请求
 ```javascript
-
 import ajax from 'wwl-ajax';
 
-var config={    //配置参数
-    url: "http://127.0.0.1",
-    method:"post",
-    data:{ name:"w w l" },
-    params:{ id:5 }
-};
+//实际请求url: http://127.0.0.1/?name=wwl%26,   
+//如果设置 {encodeExclude:true}或{encodeExclude:['name']}; 则为http://127.0.0.1/?name=wwl&
+var promise = ajax({
+    url: 'http://127.0.0.1',
+    data: {name: "wwl&"}
+});
 
-//实际请求url: http://127.0.0.1?id=5
-//实际post数据: name=w%20w%20l  //如果设置 encodeExclude=['name'];则为 name=w w l;
-var promise=ajax(config);
-promise.then(function(res){
-        console.log(res); //{ data:'data from server', status:200, statusText:'OK' , xhr: XMLHttpRequest }
-    },function(res){
-        console.log(res); //{ data:'', status:404, statusText:'Not Found' , xhr: XMLHttpRequest }
+typeof promise.abort === 'function';    //true
+
+promise.then(function (res) {
+    console.log(res); //{ data:'data from server', status:200, statusText:'OK' , xhr: XMLHttpRequest }
+}, function (res) {
+    console.log(res); //{ data:'', status:404, statusText:'Not Found' , xhr: XMLHttpRequest }
+});
+
+```
+
+## 示例2 jsonp请求
+```javascript
+
+//实际请求url: http://127.0.0.1?name=wwl&callback=__jsonp__1
+var promise = ajax({
+        url: 'http://127.0.0.1',
+        method: 'JSONP',
+        data: {name: "wwl"},
+        cbParam: 'callback',     //可忽略，默认为callback
+        cbName: '__jsonp__1',    //可忽略，默认为__jsonp__${count}
     });
 
 typeof promise.abort === 'function';    //true
 
+promise.then(function (res) {
+    console.log(res); //{ data:'data from server', status:200, statusText:'ok'  }
+}, function (res) {
+    console.log(res); //{ data:'', status:400, statusText:'timeout'}
+});
+
 ```
 
+## 示例3 post请求 (默认,urlencoded类型)
+```javascript
+//实际请求url: http://127.0.0.1/?id=1
+//http body为: name=wwl&sex=male
+    ajax({
+        url: 'http://127.0.0.1',
+        method: 'POST',
+        params: {id: '1'},
+        data: {name: 'wwl',sex:'male'}
+    });
+```
+
+## 示例4 post请求 (multipart/form-data类型)
+```javascript
+    var data=new FormData();
+    data.append('file',document.querySelector('[input=file]').files[0]);
+    data.append('name','wwl');
+    ajax({
+        url: 'http://127.0.0.1',
+        method: 'POST',
+        data: data
+    });
+```
+或
+```javascript
+ ajax({
+        url: 'http://127.0.0.1',
+        method: 'POST',
+        data: {
+            name: 'wwl',
+            file: document.querySelector('[input=file]').files[0]
+        },
+        contentType:'formdata'
+    });
+```
+
+## 示例5 post请求(application/json类型)
+```javascript
+//http body为:  {"name":"wwl"}
+    ajax({
+        url: 'http://127.0.0.1',
+        method: 'POST',
+        data: {name: 'wwl'},
+        contentType:'json'
+    });
+```
+
+## 示例6 直接发送数据
+```javascript
+    ajax({
+        url: 'http://127.0.0.1',
+        method: 'POST',
+        data: '123'
+    });
+
+    ajax({
+        url: 'http://127.0.0.1',
+        method: 'POST',
+        data: document.querySelector('[input=file]').files[0]
+    });
+```
+
+
 ## 配置参数
-{url,method,data,params,headers,timeout,withCredentials,transformRequest,transformResponse,encodeExclude,cbParam,cbName,charset}
+{url,method,data,params,headers,timeout,withCredentials,transformRequest,transformResponse,encodeExclude,contentType,cbParam,cbName,charset}
 
 ### url  
     <string>     require
@@ -53,7 +135,7 @@ typeof promise.abort === 'function';    //true
     <any>      
     请求数据。
     支持FormData,File,Blob,String,Object。
-    如果为GET或JSONP，等效于params。
+    如果method为GET或JSONP，该参数效于params。
     
 ### params
     <any>
@@ -62,7 +144,7 @@ typeof promise.abort === 'function';    //true
 
 ### headers
     <Object>
-     默认为{},设置请求头。
+    默认为{},设置请求头。
 
 ### timeout
     <number>
@@ -71,7 +153,15 @@ typeof promise.abort === 'function';    //true
 ### withCredentials
     <boolean>
     设置withCredentials 
-    
+
+### contentType
+    <string>
+    有效值为: "urlencoded","formdata","json"，默认为"urlencoded"。
+    当method为post时，且data参数为普通对象时，
+    则默认使用application/x-www-form-urlencoded的形式；
+    如果设置为"formdata", 则使用multipart/form-data的形式；
+    如果设置为"json", 则使用application/json的形式。
+        
 ### transformRequest
     <function>
     转换请求数据data。
@@ -103,8 +193,9 @@ typeof promise.abort === 'function';    //true
     
 ### charset
     <string>
+    针对jsonp的参数，设置jsonp的字符编码。
     默认为utf-8.
-    设置jsonp的字符编码。
+    
    
 ## 返回值
 返回带有abort()方法的Promise对象。
