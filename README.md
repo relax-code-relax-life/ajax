@@ -1,5 +1,5 @@
 # ajax
-浏览器端加载远程数据的ajax实现，支持jsonp，支持FormData。
+浏览器端加载远程数据的ajax实现，支持jsonp，支持FormData，支持application/json, 支持自定义post body体。
 
 
 ## 依赖
