@@ -411,6 +411,6 @@ var fetch = function (config) {
     promise.abort = defer.abort;
     return promise;
 };
-// module.exports = fetch;
+module.exports = fetch;
 // module.exports.default = fetch;
-export default fetch;
+// export default fetch;
