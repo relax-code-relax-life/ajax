@@ -1,18 +1,17 @@
-# ajax
 浏览器端加载远程数据的ajax实现，支持jsonp，支持FormData，支持application/json, 支持自定义post body体。
-
 
 ## 依赖
 代码依赖Promise对象，请确保在加载ajax前已支持Promise。
 
 ## 下载
-* npm install --save wwl-ajax
-* \<script src="https://gitee.com/w-wl/dist_ajax/raw/master/index.js"></script\>
+* npm: `npm install --save wwl-ajax`
+* 直接下载: \<script src="https://gitee.com/w-wl/dist_ajax/raw/master/index.js"></script\>
 
 ## 使用
-* amd， eg: `define([],"./js/wwl-ajax.js")`;
-* commonJs, eg: `import ajax from 'wwl-ajax'` 或 `var ajax=require('wwl-ajax')`;
-* 当页面不支持amd和commonJs时，直接引用script,会暴露出window.ajax函数。
+* es2015: `import ajax from 'wwl-ajax'`
+* commonJs:  `var ajax=require('wwl-ajax')`;
+* amd: `define([],"./js/wwl-ajax.js")`
+* window.ajax: `<script src="https://gitee.com/w-wl/dist_ajax/raw/master/index.js"></script>`
 
 ## 示例1 GET请求
 ```javascript
