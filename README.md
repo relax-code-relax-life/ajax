@@ -17,17 +17,17 @@
 
 ## 目录
 
-- [get请求](#user-content-示例1-get请求)
+- [示例1-get请求](#user-content-示例1-get请求)
 
-- [jsonp请求](#user-content-示例2-jsonp请求)
+- [示例2-jsonp请求](#user-content-示例2-jsonp请求)
 
-- [post请求(默认)](#user-content-示例3-post请求-\(默认,urlencoded类型\))
+- [示例3-post请求(默认)](#user-content-示例3-post请求-\(默认,urlencoded类型\))
 
-- [post请求(formData)](#user-content-示例4-post请求-\(multipart/form-data类型\))
+- [示例4-post请求(formData)](#user-content-示例4-post请求-\(multipart/form-data类型\))
 
-- [post请求(json)](#user-content-示例3-post请求-\(默认,urlencoded类型\))
+- [示例5-post请求(json)](#user-content-示例3-post请求-\(默认,urlencoded类型\))
 
-- [post请求(自定义body体)](#user-content-示例6-直接发送数据)
+- [示例6-post请求(自定义body体)](#user-content-示例6-直接发送数据)
 
 - [参数详情](#user-content-配置参数)
 
