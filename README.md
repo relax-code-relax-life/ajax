@@ -21,11 +21,11 @@
 
 - [示例2-jsonp请求](#user-content-示例2-jsonp请求)
 
-- [示例3-post请求(默认)](#user-content-示例3-post请求-\(默认,urlencoded类型\))
+- [示例3-post请求(默认)](#user-content-示例3-post请求-默认urlencoded类型)
 
-- [示例4-post请求(formData)](#user-content-示例4-post请求-\(multipart/form-data类型\))
+- [示例4-post请求(formData)](#user-content-示例4-post请求-multipartform-data类型)
 
-- [示例5-post请求(json)](#user-content-示例3-post请求-\(默认,urlencoded类型\))
+- [示例5-post请求(json)](#user-content-示例5-post请求applicationjson类型)
 
 - [示例6-post请求(自定义body体)](#user-content-示例6-直接发送数据)
 
@@ -125,6 +125,8 @@ promise.then(function (res) {
 
 ## 示例6 直接发送数据
 ```javascript
+    //自定义发送的body体：
+    //如果data参数为String、File、Blob、ArrayBuffer类型，则不对data做处理。
     ajax({
         url: 'http://127.0.0.1',
         method: 'POST',
