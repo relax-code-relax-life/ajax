@@ -34,6 +34,6 @@ module.exports = {
             comments: false,
             beautify: false
         }),
-        new webpack.BannerPlugin('https://gitee.com/w-wl')
+        new webpack.BannerPlugin('https://www.npmjs.com/package/wwl-ajax')
     ]
 };

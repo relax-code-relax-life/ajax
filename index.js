@@ -378,6 +378,7 @@ var fetch = function (config) {
     else if (contentType === contentTypeEnum.formData) {
         var formdata = new FormData();
         each(requestData, function (val, key) {
+            if (val == null) return;   //filter null,undefined
             formdata.append(key, val);
         });
         requestData = formdata;

@@ -1,6 +1,6 @@
 {
   "name": "wwl-ajax",
-  "version": "1.1.16",
+  "version": "1.1.17",
   "description": "javascript ajax helper.",
   "main": "index.js",
   "scripts": {

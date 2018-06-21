@@ -1,7 +1,8 @@
-浏览器端加载远程数据的ajax实现，支持jsonp，支持FormData，支持application/json, 支持自定义post body体。
+浏览器端加载远程数据的ajax实现, 支持jsonp；支持FormData，支持application/json, 支持自定义post body体；支持web worker环境。
 
-## 依赖
-代码依赖Promise对象，请确保在加载ajax前已支持Promise。
+## 注意
+- 代码依赖Promise对象，请确保当前环境已支持Promise。
+- web worker环境下，不支持jsonp。
 
 ## 下载
 * npm: `npm install --save wwl-ajax`
@@ -12,6 +13,25 @@
 * commonJs:  `var ajax=require('wwl-ajax')`;
 * amd: `define([],"./js/wwl-ajax.js")`
 * window.ajax: `<script src="https://gitee.com/w-wl/dist_ajax/raw/master/index.js"></script>`
+* self.ajax: `importScripts('./ajax.js');`
+
+## 目录
+
+- [get请求](#示例1-GET请求)
+
+- [jsonp请求](#示例2-jsonp请求)
+
+- [post请求(默认)](#示例3-post请求-\(默认,urlencoded类型\))
+
+- [post请求(formData)](#示例4-post请求-\(multipart/form-data类型\))
+
+- [post请求(json)](#示例3-post请求-\(默认,urlencoded类型\))
+
+- [post请求(自定义body体)](#示例6-直接发送数据)
+
+- [参数详情](#配置参数)
+
+- [返回值详情](#返回值)
 
 ## 示例1 GET请求
 ```javascript
@@ -120,7 +140,7 @@ promise.then(function (res) {
 
 
 ## 配置参数
-{url,method,data,params,headers,timeout,withCredentials,transformRequest,transformResponse,encodeExclude,contentType,cbParam,cbName,charset}
+{url,method,data,params,headers,timeout,withCredentials,responseType,transformRequest,transformResponse,encodeExclude,contentType,cbParam,cbName,charset}
 
 ### url  
     <string>     require
@@ -160,7 +180,12 @@ promise.then(function (res) {
     则默认使用application/x-www-form-urlencoded的形式；
     如果设置为"formdata", 则使用multipart/form-data的形式；
     如果设置为"json", 则使用application/json的形式。
-        
+      
+### responseType
+    <string>
+    默认为"json"。
+    设置响应类型。常见的值有： "arraybuffer", "blob", "document", "json", "text"。
+      
 ### transformRequest
     <function>
     转换请求数据data。
