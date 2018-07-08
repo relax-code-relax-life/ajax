@@ -1,21 +1,21 @@
 浏览器端加载远程数据的ajax实现, 支持jsonp；支持FormData，支持application/json, 支持自定义post body体；支持web worker环境。
 
-## 注意
+# 注意
 - 代码依赖Promise对象，请确保当前环境已支持Promise。
 - web worker环境下，不支持jsonp。
 
-## 下载
+# 下载
 * npm: `npm install --save wwl-ajax`
 * 直接下载: \<script src="https://gitee.com/w-wl/dist_ajax/raw/master/index.js"></script\>
 
-## 使用
+# 使用
 * es2015: `import ajax from 'wwl-ajax'`
 * commonJs:  `var ajax=require('wwl-ajax')`;
 * amd: `define([],"./js/wwl-ajax.js")`
 * window.ajax: `<script src="https://gitee.com/w-wl/dist_ajax/raw/master/index.js"></script>`
 * self.ajax: `importScripts('./ajax.js');`
 
-## 目录
+# 目录
 
 - [示例1-get请求](#user-content-示例1-get请求)
 
@@ -32,6 +32,8 @@
 - [参数详情](#user-content-配置参数)
 
 - [返回值详情](#user-content-返回值)
+
+# 示例
 
 ## 示例1 GET请求
 ```javascript
@@ -141,41 +143,41 @@ promise.then(function (res) {
 ```
 
 
-## 配置参数
+# 配置参数
 {url,method,data,params,headers,timeout,withCredentials,responseType,transformRequest,transformResponse,encodeExclude,contentType,cbParam,cbName,charset}
 
-### url  
+## url  
     <string>     require
     请求的url
 
-### method
+## method
     <string>    
     默认为GET，支持JSONP。不区分大小写。
 
-### data
+## data
     <any>      
     请求数据。
     支持FormData,File,Blob,String,Object。
     如果method为GET或JSONP，该参数效于params。
     
-### params
+## params
     <any>
     如果是对象，转换为&key=value的形式添加到url，
     如果是字符串，转换为&params的形式添加到url。 
 
-### headers
+## headers
     <Object>
     默认为{},设置请求头。
 
-### timeout
+## timeout
     <number>
     设置超时时间。jsonp默认30秒超时，其他情况下默认无超时时间。
 
-### withCredentials
+## withCredentials
     <boolean>
     设置withCredentials 
 
-### contentType
+## contentType
     <string>
     有效值为: "urlencoded","formdata","json"，默认为"urlencoded"。
     当method为post时，且data参数为普通对象时，
@@ -183,73 +185,73 @@ promise.then(function (res) {
     如果设置为"formdata", 则使用multipart/form-data的形式；
     如果设置为"json", 则使用application/json的形式。
       
-### responseType
+## responseType
     <string>
     默认为"json"。
     设置响应类型。常见的值有： "arraybuffer", "blob", "document", "json", "text"。
       
-### transformRequest
+## transformRequest
     <function>
     转换请求数据data。
     回调签名: callback(data,config)
     data: 当前请求对象。
     config: 传入ajax()方法的配置对象。
     
-### transformResponse
+## transformResponse
     <function>
     转换返回结果。
     回调签名: callback(data)
     data: 请求的返回结果。
 
-### encodeExclude
+## encodeExclude
     <boolean|Array>
     默认情况情况下，会通过encodeURIComponent，对params参数进行转义。
     如果data不是FromData、File、Blob、Buffer类型，也会对data进行转义。
     如果设置encodeExclude为true，则取消转义。
     如果设置encodeExclude为数组，则可对特定的键取消转义。
 
-### cbParam
+## cbParam
     <string>
     针对jsonp的参数，回调的参数名，默认为callback。
 
-### cbName
+## cbName
     <string>
     针对jsonp的参数，回调的函数名，默认为 __jsonp__${cnt}。
     即默认情况下，第一个jsonp的请求参数为: ?callback=__jsonp__1
     
-### charset
+## charset
     <string>
     针对jsonp的参数，设置jsonp的字符编码。
     默认为utf-8.
     
    
-## 返回值
+# 返回值
 返回带有abort()方法的Promise对象。
 
-### promise.abort
+## promise.abort
 取消当前请求。
 如果在请求完成后调用abort方法，则无任何效果。
 如果在请求完成前调用，则不会触发promise的回调。
 
-## promise的回调参数
+# promise的回调参数
 {data,status,statusText,xhr}
 
-### data
+## data
     请求的返回值。
     
-### status
+## status
     <number>
     请求的返回状态码。
     
-### statusText
+## statusText
     <string>
     请求的返回状态的字符串。
     
-### xhr
+## xhr
     <XMLHttpRequest>
     内部的XMLHttpRequest对象，如果jsonp，则该值为undefined。
     
-## 注意
+# 注意
 如果传入的参数值为null或undefined，则会按照缺省处理。
 
 ```javascript
