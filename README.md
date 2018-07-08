@@ -6,13 +6,13 @@
 
 # 下载
 * npm: `npm install --save wwl-ajax`
-* 直接下载: \<script src="https://gitee.com/w-wl/dist_ajax/raw/master/index.js"></script\>
+* 直接下载: `http://wangwl.net/static/demo/wwl-ajax/index.js`
 
 # 使用
 * es2015: `import ajax from 'wwl-ajax'`
 * commonJs:  `var ajax=require('wwl-ajax')`;
-* amd: `define([],"./js/wwl-ajax.js")`
-* window.ajax: `<script src="https://gitee.com/w-wl/dist_ajax/raw/master/index.js"></script>`
+* amd: `define(["./js/wwl-ajax.js"],function(ajax){})`
+* window.ajax: `<script src="http://wangwl.net/static/demo/wwl-ajax/index.js"></script>`
 * self.ajax: `importScripts('./ajax.js');`
 
 # 目录
