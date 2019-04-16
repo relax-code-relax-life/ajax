@@ -4,8 +4,8 @@
 
 "use strict";
 
-var call = Function.prototype.call;
-var toString = call.bind(Object.prototype.toString);
+const call = Function.prototype.call;
+const toString = call.bind(Object.prototype.toString);
 var reg_resolveUrl = /(\?([^#]*))?(#.*)?\s*$/;
 var assign = function (tar, ...extend) {
     extend
@@ -32,12 +32,23 @@ var isObject = function (obj) {
 var trim = function (str) {
     if (str.trim) return str.trim();
     else return str.replace(/^\s+|\s+$/g, '');
+};
+
+
+interface IDefer {
+    promise: Promise<any>,
+    resolve: (data?: any) => void,
+    reject: (error?: any) => void
 }
 
+type IDeferWithAbort = IDefer & { abort(): void }
 var
     util_param = function (params, encodeEx) {
         if (params == null || typeof params !== 'object') return params || '';
-        var result = [], val, enc = encodeURIComponent;
+        var
+            result: string[] = [],
+            val,
+            enc = encodeURIComponent;
 
         //格式化excludeMap: {key1:bool,key2:bool}
         var excludeMap = {}, excludeAll = false;
@@ -68,7 +79,7 @@ var
         return url.replace(reg_resolveUrl, '?$2&' + param + '$3').replace('?&', '?')
     },
     util_defer = function () {
-        var defer = {};
+        var defer = {} as IDefer;
         defer.promise = new Promise(function (resolve, reject) {
             defer.resolve = resolve;
             defer.reject = reject;
@@ -122,7 +133,7 @@ var
  * */
 var _jsonpCnt = 0;
 
-function jsonp(opt) {
+function jsonp(opt: IJsonpConfig) {
     var {
         url = '',
         params = {},
@@ -131,7 +142,7 @@ function jsonp(opt) {
         timeout,
         charset = 'utf-8',
         responseType  //jsonp忽略该值，不做处理。
-    } = opt || {};
+    } = opt || {} as IJsonpConfig;
 
     var isAbort = false;
 
@@ -154,7 +165,7 @@ function jsonp(opt) {
         cleanup(400, 'timeout');
     }, timeout);
 
-    function cleanup(status, statusText, data) {
+    function cleanup(status, statusText, data?) {
         window[cbName] = script.onload = script.onerror = null;
         if (timeoutId) clearTimeout(timeoutId);
         try {
@@ -187,11 +198,11 @@ function jsonp(opt) {
     script.src = url;
     parent.appendChild(script);
 
-    defer.abort = function () {
+    (defer as IDeferWithAbort).abort = function () {
         isAbort = true;
     };
 
-    return defer;
+    return defer as IDeferWithAbort;
 }
 
 
@@ -208,7 +219,7 @@ function jsonp(opt) {
  *   encodeExclude:false
  * }
  * */
-function ajax(config) {
+function ajax(config: IAjaxConfig) {
     var defer = util_defer();
     var xhr = new XMLHttpRequest();
     var {url, method, params, data: requestData, responseType} = config;
@@ -267,17 +278,53 @@ function ajax(config) {
     }
 
     xhr.withCredentials = config.withCredentials;
+    // @ts-ignore
     xhr.responseType = responseType || '';
 
     xhr.send(requestData || null);
 
-    defer.abort = function () {
+    (defer as IDeferWithAbort).abort = function () {
         xhr && xhr.abort();
     };
 
-    return defer;
+    return defer as IDeferWithAbort;
 }
 
+
+interface ICommonConfig {
+    url: string,
+    method?: string,
+    data?: any,
+    params?: object,
+    timeout?: number,
+    encodeExclude?: boolean | string[],
+    responseType?: string,
+    transformRequest?: (requestData: any, config: IConfig) => any,
+    transformResponse?: (response: any, config: IConfig) => any,
+}
+
+interface IAjaxConfigSpecial {
+    headers?: object,
+    withCredentials?: boolean,
+    contentType?: 'urlencoded' | 'formdata' | 'json'
+}
+
+interface IJsonpConfigSpecial {
+    cbParam?: string,
+    cbName?: string,
+    charset?: string,
+}
+
+type IAjaxConfig = IAjaxConfigSpecial & ICommonConfig;
+type IJsonpConfig = IJsonpConfigSpecial & ICommonConfig
+type IConfig = IAjaxConfig | IJsonpConfig;
+
+interface IResponse {
+    data: any,
+    status: number,
+    statusText: string,
+    xhr?: XMLHttpRequest
+}
 
 /*
  * config:
@@ -337,14 +384,13 @@ var contentTypeEnum = {
     json: 'json'
 };
 
-var fetch = function (config) {
+var fetch = function (_config: IConfig) {
 
-    if (typeof config.url !== 'string' || trim(config.url) === '') {
-        throw 'wwl-ajax : invalid url .';
-        return;
+    if (typeof _config.url !== 'string' || trim(_config.url) === '') {
+        throw new Error('wwl-ajax : invalid url .');
     }
 
-    config = assign({}, defaults, config);
+    let config = assign({}, defaults, _config);
 
     var method = config.method.toUpperCase();
 
@@ -402,16 +448,18 @@ var fetch = function (config) {
 
     var defer = (isJsonp ? jsonp(config) : ajax(config));
 
-    var promise = defer.promise.then(function (res) {
+
+    var promise = defer.promise.then(function (res: IResponse) {
         res.data = transformResponse(res.data, config);
         return res;
-    }, function (res) {
+    }, function (res: IResponse) {
         res.data = transformResponse(res.data, config);
         return Promise.reject(res);
     });
-    promise.abort = defer.abort;
-    return promise;
+
+    type IResult = Promise<IResponse> & { abort: () => void };
+    (promise as IResult).abort = defer.abort;
+    return promise as IResult;
 };
-module.exports = fetch;
-// module.exports.default = fetch;
-// export default fetch;
+
+export default fetch;
